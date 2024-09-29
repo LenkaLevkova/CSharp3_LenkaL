@@ -1,0 +1,8 @@
+- ASP.NET Core - framework, v ktorom budeme pracovat
+- kedysi jenom asp.net, core sa tam pridalo vo chvili, kedy zacali podporovat multiplatformitu
+- je to open source
+- Web UI a Backend Services
+- Servisa: - beží a má účel :-D
+- buď to beži na našom počitači (client rendered), alebo sa dotazujeme nejakého serveru (server rendered)
+- servisy napr. gRPC, SignalR, Workers a web API
+- web API - to nas zaujima: controller based (tym sa budeme zabyvat) vs minimal (novšie)
