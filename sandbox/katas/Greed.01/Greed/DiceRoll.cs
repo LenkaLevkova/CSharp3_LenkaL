@@ -17,23 +17,24 @@ public class DiceRoll
     public List<int> GetScoringDice(List<int> dice)
     {
         var scoringDice = new List<int>();
-        var groups = dice.GroupBy(d => d).ToDictionary(g => g.Key, g => g.Count());
+        var rolledNumbersGroups = dice.GroupBy(d => d).ToDictionary(g => g.Key, g => g.Count());
 
-        // Check for special hands like straight or three pairs
+        //Check for straight
         if (dice.Count == 6 && IsStraight(dice))
         {
             Console.WriteLine("You rolled a straight!");
-            return dice; // All dice are part of the straight
+            return dice;
         }
 
+        //Check for 3 pairs
         if (dice.Count == 6 && IsThreePairs(dice))
         {
             Console.WriteLine("You rolled three pairs!");
-            return dice; // All dice are part of the three pairs
+            return dice;
         }
 
-        // Check for triples, four, five, and six of a kind
-        foreach (var group in groups)
+        //Check if there are 3, 4, 5 or 6 dice of the same kind
+        foreach (var group in rolledNumbersGroups)
         {
             if (group.Value >= 3)
             {
@@ -44,17 +45,29 @@ public class DiceRoll
             }
         }
 
-        // Check for single ones and fives
+        //Check for signle 1 and 5
         scoringDice.AddRange(dice.Where(d => d == 1 || d == 5));
+
         return scoringDice;
     }
 
-    public int CalculateScore(List<int> scoringDice)
+    public int CalculateScore(List<int> dice)
     {
-        int score = 0;
-        var groups = scoringDice.GroupBy(d => d).ToDictionary(g => g.Key, g => g.Count());
+        var score = 0;
 
-        foreach (var group in groups)
+        if (dice.Count == 6 && IsStraight(dice))
+        {
+            return 1200;
+        }
+
+        if (dice.Count == 6 && IsThreePairs(dice))
+        {
+            return 800;
+        }
+
+        var scoringGroups = dice.GroupBy(d => d).ToDictionary(g => g.Key, g => g.Count());
+
+        foreach (var group in scoringGroups)
         {
             if (group.Value >= 3)
             {
@@ -62,14 +75,14 @@ public class DiceRoll
             }
         }
 
-        score += groups.ContainsKey(1) ? groups[1] % 3 * 100 : 0;
-        score += groups.ContainsKey(5) ? groups[5] % 3 * 50 : 0;
+        score += scoringGroups.ContainsKey(1) ? scoringGroups[1] % 3 * 100 : 0;
+        score += scoringGroups.ContainsKey(5) ? scoringGroups[5] % 3 * 50 : 0;
         return score;
     }
 
     private int CalculateTripleScore(int value, int count)
     {
-        int baseScore = value switch
+        var baseScore = value switch
         {
             1 => 1000,
             2 => 200,
@@ -80,9 +93,20 @@ public class DiceRoll
             _ => 0
         };
 
-        if (count == 4) return baseScore * 2;
-        if (count == 5) return baseScore * 4;
-        if (count == 6) return baseScore * 8;
+        if (count == 4)
+        {
+            return baseScore * 2;
+        }
+
+        if (count == 5)
+        {
+            return baseScore * 4;
+        }
+
+        if (count == 6)
+        {
+            return baseScore * 8;
+        }
 
         return baseScore;
     }

@@ -46,6 +46,12 @@ public class Greed
             Console.WriteLine("Do you want to keep rolling or end the game with your current score? (roll/end)");
             var decision = Console.ReadLine().ToLower();
 
+            while (!(decision.Equals("end") || decision.Equals("roll")))
+            {
+                Console.WriteLine("Instructions unclear. Please select from options: roll/end.");
+                decision = Console.ReadLine().ToLower();
+            }
+
             if (decision.Equals("end"))
             {
                 return roundScore;
@@ -53,10 +59,57 @@ public class Greed
 
             if (decision.Equals("roll"))
             {
-                Console.WriteLine("How many dice would you like to re-roll?");
-                var numberOfDiceToReroll = int.Parse(Console.ReadLine());
-                dice = diceRoll.RollDice(numberOfDiceToReroll);
+                dice = ReRollDice(dice);
             }
         }
+    }
+
+    private List<int> ReRollDice(List<int> currentRoll)
+    {
+        var rerollDice = new List<int>();
+        Console.WriteLine("Which dice do you want to reroll? Enter the numbers, comma-separated: ");
+        var diceToReroll = GetValidatedDiceInput(currentRoll);
+        rerollDice = diceRoll.RollDice(diceToReroll.Count);
+        Console.WriteLine("Rerolled dice: " + string.Join(", ", rerollDice));
+        return rerollDice;
+    }
+
+    private List<int> GetValidatedDiceInput(List<int> currentRoll)
+    {
+        var diceToReroll = new List<int>();
+        var validInput = false;
+
+        while (!validInput)
+        {
+            var input = Console.ReadLine();
+            if (input != null)
+            {
+                var diceInput = input.Split(',');
+
+                validInput = true;
+                diceToReroll = new List<int>();
+
+                foreach (var diceStr in diceInput)
+                {
+                    if (int.TryParse(diceStr.Trim(), out int diceNumber) && currentRoll.Contains(diceNumber))
+                    {
+                        diceToReroll.Add(diceNumber);
+                    }
+                    else
+                    {
+                        validInput = false;
+                        break;
+                    }
+                }
+
+                if (!validInput)
+                {
+                    Console.WriteLine("Invalid input. Please enter only valid dice numbers (comma-separated) from the current roll.");
+                    Console.WriteLine("Available dice: " + string.Join(", ", currentRoll.Distinct()));
+                }
+            }
+        }
+
+        return diceToReroll;
     }
 }
