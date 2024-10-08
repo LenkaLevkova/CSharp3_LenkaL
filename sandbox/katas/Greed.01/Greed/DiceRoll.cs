@@ -20,10 +20,10 @@ public class DiceRoll
         var rolledNumbersGroups = dice.GroupBy(d => d).ToDictionary(g => g.Key, g => g.Count());
 
         //Check for straight
-        if (dice.Count == 6 && IsStraight(dice))
+        if (dice.Count == 6 && IsStraight(dice))//ahaaa toto platí len pre 6 stranné kocky..
         {
             Console.WriteLine("You rolled a straight!");
-            return dice;
+            return dice; //ale v tom 
         }
 
         //Check for 3 pairs
@@ -75,7 +75,7 @@ public class DiceRoll
             }
         }
 
-        score += scoringGroups.ContainsKey(1) ? scoringGroups[1] % 3 * 100 : 0;
+        score += scoringGroups.ContainsKey(1) ? scoringGroups[1] % 3 * 100 : 0; //toto mi úplne nedáva zmysel. Ak sa tam nachádzajú jedničky, tak ich počeet vymodulujem troma, to prenásobím 100 a prirátam k výsledku? Takže keď budem mať 5 jedničiek, tak nie len že dostanem 4000 bodov, ešte budem mať aj 200 navyše? :-) 
         score += scoringGroups.ContainsKey(5) ? scoringGroups[5] % 3 * 50 : 0;
         return score;
     }
@@ -93,32 +93,18 @@ public class DiceRoll
             _ => 0
         };
 
-        if (count == 4)
-        {
-            return baseScore * 2;
-        }
-
-        if (count == 5)
-        {
-            return baseScore * 4;
-        }
-
-        if (count == 6)
-        {
-            return baseScore * 8;
-        }
-
-        return baseScore;
+        var multiplier = (count > 4) ? Math.Pow(2, count-3) : 1;
+        return baseScore * multiplier; // 2, 4, 8, to vyzera, ako nejaka matematicka postutpnost :-) 
     }
 
     private bool IsStraight(List<int> dice)
     {
-        return dice.OrderBy(d => d).SequenceEqual(new List<int> { 1, 2, 3, 4, 5, 6 });
+        return dice.OrderBy(d => d).SequenceEqual(new List<int> { 1, 2, 3, 4, 5, 6 }); //toto nebude uplne fungovat pre kocky s viacerymi stranami. Mozes na to ale pouzit uplne rovnaku metodu ako na tie dvojice, akurat pre kocku s n stranami budees hladat n grup, ktore maju presne jedneho clena
     }
 
     private bool IsThreePairs(List<int> dice)
     {
         var groups = dice.GroupBy(d => d).ToDictionary(g => g.Key, g => g.Count());
-        return groups.Count == 3 && groups.All(g => g.Value == 2);
+        return groups.Count == 3 && groups.All(g => g.Value == 2); //dooost dobre :-) 
     }
 }
