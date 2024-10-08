@@ -11,7 +11,7 @@ public class DiceRoll
             dice.Add(random.Next(1, 7));
         }
 
-        return dice;
+        return dice; //and this
     }
 
     public List<int> GetScoringDice(List<int> dice)
