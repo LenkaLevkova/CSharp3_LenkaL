@@ -55,18 +55,43 @@ public class ToDoItemsController : ControllerBase
     [HttpGet("{toDoItemId:int}")]
     public IActionResult ReadById(int toDoItemId)
     {
-        return Ok();
+        var item = items.FirstOrDefault(i => i.ToDoItemId == toDoItemId);
+
+        if (item == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(item);
     }
 
     [HttpPut("{toDoItemId:int}")]
     public IActionResult UpdateById(int toDoItemId, [FromBody] ToDoItemUpdateRequestDto request)
     {
-        return Ok();
+        var item = items.FirstOrDefault(i => i.ToDoItemId == toDoItemId);
+
+        if (item == null)
+        {
+            return NotFound();
+        }
+
+        item.Name = request.Name;
+        item.Description = request.Description;
+        item.IsCompleted = request.IsCompleted;
+        return Ok(item);
     }
 
     [HttpDelete("{toDoItemId:int}")]
     public IActionResult DeleteById(int toDoItemId)
     {
-        return Ok();
+        var item = items.FirstOrDefault(i => i.ToDoItemId == toDoItemId);
+
+        if (item == null)
+        {
+            return NotFound();
+        }
+
+        items.Remove(item);
+        return NoContent();
     }
 }
