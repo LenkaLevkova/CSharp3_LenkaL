@@ -1,0 +1,5 @@
+- Routing: priprava cesty
+- rozhoduje o tom, kam sa posielaju ktore requesty a ktora cast kodu sa ma spustit
+- DTO je v nasom pripade json, ktoremu rozumeju obe strany - serializace / deserializace
+- DTO definuje ocakavania, ako maju data vypadat
+- 

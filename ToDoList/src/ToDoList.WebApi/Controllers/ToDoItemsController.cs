@@ -7,7 +7,7 @@ using ToDoList.Domain.Models;
 [Route("api/[controller]")]
 public class ToDoItemsController : ControllerBase
 {
-    private static List<ToDoItem> items = [];
+    public static List<ToDoItem> items = [];
 
     [HttpPost]
     public IActionResult Create(ToDoItemCreateRequestDto request)
@@ -31,7 +31,7 @@ public class ToDoItemsController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult Read()
+    public ActionResult<IEnumerable<ToDoItemGetResponseDto>> Read()
     {
         // try
         // {
@@ -42,14 +42,29 @@ public class ToDoItemsController : ControllerBase
         //     return this.Problem(ex.Message, null, StatusCodes.Status500InternalServerError);
         // }
 
+        // try
+        // {
+        //     return Ok(items);
+        // }
+        // catch (Exception ex)
+        // {
+        //     return this.Problem(ex.Message, null, StatusCodes.Status500InternalServerError);
+        // }
+
+        List<ToDoItem> itemsToGet;
         try
         {
-            return Ok(items);
+            itemsToGet = items;
         }
         catch (Exception ex)
         {
-            return this.Problem(ex.Message, null, StatusCodes.Status500InternalServerError);
+            return Problem(ex.Message, null, StatusCodes.Status500InternalServerError); //500
         }
+        //respond to client
+        return (itemsToGet is null)
+            ? NotFound() //404
+            : Ok(itemsToGet.Select(ToDoItemGetResponseDto.FromDomain)); //200
+
     }
 
     [HttpGet("{toDoItemId:int}")]
