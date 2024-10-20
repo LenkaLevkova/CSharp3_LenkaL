@@ -35,4 +35,33 @@ public class GetTests
         Assert.Equal(toDoItem.IsCompleted, firstItem.IsCompleted);
         Assert.Equal(toDoItem.Name, firstItem.Name);
     }
+
+    [Fact]
+    public void Get_AllItems_ReturnsById()
+    {
+        // Arrange
+        var controller = new ToDoItemsController();
+        var toDoItem = new ToDoItem
+        {
+            ToDoItemId = 1,
+            Name = "Jmeno",
+            Description = "Popis",
+            IsCompleted = false
+        };
+        ToDoItemsController.items.Add(toDoItem);
+
+        // Act
+        var result = controller.ReadById(1);
+        var resultResult = result.Result;
+        var value = result.GetValue();
+
+        // Assert
+        Assert.IsType<OkObjectResult>(resultResult);
+        Assert.NotNull(value);
+
+        Assert.Equal(toDoItem.ToDoItemId, value.Id);
+        Assert.Equal(toDoItem.Description, value.Description);
+        Assert.Equal(toDoItem.IsCompleted, value.IsCompleted);
+        Assert.Equal(toDoItem.Name, value.Name);
+    }
 }
