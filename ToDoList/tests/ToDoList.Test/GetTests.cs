@@ -48,7 +48,7 @@ public class GetTests
             Description = "Popis",
             IsCompleted = false
         };
-        ToDoItemsController.items.Add(toDoItem);
+        controller.items.Add(toDoItem);
 
         // Act
         var result = controller.ReadById(1);

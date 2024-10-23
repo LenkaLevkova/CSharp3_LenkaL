@@ -19,7 +19,7 @@ POST {{host}}:{{port}}/api/ToDoItems
 Content-Type: application/json
 
 {
-  "name": "Example New Task",
+  "name": "Namegg",
   "description": "Example New Description",
   "isCompleted": false
 }
