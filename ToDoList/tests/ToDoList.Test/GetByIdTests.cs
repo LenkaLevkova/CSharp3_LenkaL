@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using ToDoList.Domain.Models;
 using ToDoList.WebApi.Controllers;
 
-public class GetTests
+public class GetByIdTests
 {
     [Fact]
-    public void Get_AllItems_ReturnsAllItems()
+    public void GetById_ValidId_ReturnsItem()
     {
         // Arrange
         var controller = new ToDoItemsController();
@@ -21,37 +21,7 @@ public class GetTests
         controller.items.Add(toDoItem);
 
         // Act
-        var result = controller.Read();
-        var resultResult = result.Result;
-        var value = result.GetValue();
-
-        // Assert
-        Assert.IsType<OkObjectResult>(resultResult);
-        Assert.NotNull(value);
-
-        var firstItem = value.First();
-        Assert.Equal(toDoItem.ToDoItemId, firstItem.Id);
-        Assert.Equal(toDoItem.Description, firstItem.Description);
-        Assert.Equal(toDoItem.IsCompleted, firstItem.IsCompleted);
-        Assert.Equal(toDoItem.Name, firstItem.Name);
-    }
-
-    [Fact]
-    public void Get_AllItems_ReturnsById()
-    {
-        // Arrange
-        var controller = new ToDoItemsController();
-        var toDoItem = new ToDoItem
-        {
-            ToDoItemId = 1,
-            Name = "Jmeno",
-            Description = "Popis",
-            IsCompleted = false
-        };
-        ToDoItemsController.items.Add(toDoItem);
-
-        // Act
-        var result = controller.ReadById(1);
+        var result = controller.ReadById(toDoItem.ToDoItemId);
         var resultResult = result.Result;
         var value = result.GetValue();
 
@@ -63,5 +33,28 @@ public class GetTests
         Assert.Equal(toDoItem.Description, value.Description);
         Assert.Equal(toDoItem.IsCompleted, value.IsCompleted);
         Assert.Equal(toDoItem.Name, value.Name);
+    }
+
+    [Fact]
+    public void GetById_InvalidId_ReturnsNotFound()
+    {
+        // Arrange
+        var controller = new ToDoItemsController();
+        var toDoItem = new ToDoItem
+        {
+            ToDoItemId = 1,
+            Name = "Jmeno",
+            Description = "Popis",
+            IsCompleted = false
+        };
+        controller.items.Add(toDoItem);
+
+        // Act
+        var invalidId = -1;
+        var result = controller.ReadById(invalidId);
+        var resultResult = result.Result;
+
+        // Assert
+        Assert.IsType<NotFoundResult>(resultResult);
     }
 }
