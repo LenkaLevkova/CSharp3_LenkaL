@@ -63,9 +63,10 @@ public class ToDoItemsController : ControllerBase
         // }
 
         List<ToDoItem> itemsToGet;
+
         try
         {
-            itemsToGet = items;
+            itemsToGet = context.ToDoItems.ToList();
         }
         catch (Exception ex)
         {
@@ -85,7 +86,7 @@ public class ToDoItemsController : ControllerBase
         ToDoItem? itemToGet;
         try
         {
-            itemToGet = items.Find(i => i.ToDoItemId == toDoItemId);
+            itemToGet = context.ToDoItems.Find(toDoItemId);
         }
         catch (Exception ex)
         {
@@ -108,13 +109,17 @@ public class ToDoItemsController : ControllerBase
         try
         {
             //retrieve the item
-            var itemIndexToUpdate = items.FindIndex(i => i.ToDoItemId == toDoItemId);
-            if (itemIndexToUpdate == -1)
+            var itemToUpdate = context.ToDoItems.Find(toDoItemId);
+
+            if (itemToUpdate == null)
             {
-                return NotFound(); //404
+                return NotFound(); // 404
             }
-            updatedItem.ToDoItemId = toDoItemId;
-            items[itemIndexToUpdate] = updatedItem;
+
+            itemToUpdate.Name = updatedItem.Name;
+            itemToUpdate.Description = updatedItem.Description;
+            itemToUpdate.IsCompleted = updatedItem.IsCompleted;
+            context.SaveChanges();
         }
         catch (Exception ex)
         {
@@ -131,12 +136,15 @@ public class ToDoItemsController : ControllerBase
         //try to delete the item
         try
         {
-            var itemToDelete = items.Find(i => i.ToDoItemId == toDoItemId);
+            var itemToDelete = context.ToDoItems.Find(toDoItemId);
+
             if (itemToDelete is null)
             {
-                return NotFound(); //404
+                return NotFound(); // 404
             }
-            items.Remove(itemToDelete);
+
+            context.ToDoItems.Remove(itemToDelete);
+            context.SaveChanges();
         }
         catch (Exception ex)
         {
