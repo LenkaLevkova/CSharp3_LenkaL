@@ -8,9 +8,8 @@ using ToDoList.Persistence;
 [Route("api/[controller]")]
 public class ToDoItemsController : ControllerBase
 {
-    public readonly List<ToDoItem> items = [];
+    public readonly List<ToDoItem> items = []; // po dopsání úkolu již není potřeba a můžeme tento field smazat ;)
     private readonly ToDoItemsContext context;
-
     public ToDoItemsController(ToDoItemsContext context)
     {
         this.context = context;
