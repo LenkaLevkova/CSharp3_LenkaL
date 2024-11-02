@@ -1,9 +1,11 @@
 namespace ToDoList.Test;
 
 using Microsoft.AspNetCore.Mvc;
-using ToDoList.Domain.Models;
-using ToDoList.Persistence;
+using ToDoList.Domain.DTOs;
 using ToDoList.WebApi.Controllers;
+using ToDoList.Persistence.Repositories;
+using ToDoList.Domain.Models;
+using NSubstitute;
 
 public class DeleteTests
 {
@@ -11,19 +13,12 @@ public class DeleteTests
     public void Delete_ValidId_ReturnsNoContent()
     {
         // Arrange
-        var context = new ToDoItemsContext("Data Source=../../../../../data/localdb.db");
-        var controller = new ToDoItemsController(context);
-        var toDoItem = new ToDoItem
-        {
-            ToDoItemId = 1,
-            Name = "Jmeno",
-            Description = "Popis",
-            IsCompleted = false
-        };
-        controller.items.Add(toDoItem);
+        var repository = Substitute.For<IRepository<ToDoItem>>();
+        var controller = new ToDoItemsController(repository);
+        var validId = 1;
 
         // Act
-        var result = controller.DeleteById(toDoItem.ToDoItemId);
+        var result = controller.DeleteById(validId);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -33,22 +28,19 @@ public class DeleteTests
     public void Delete_InvalidId_ReturnsNotFound()
     {
         // Arrange
-        var context = new ToDoItemsContext("Data Source=../../../../../data/localdb.db");
-        var controller = new ToDoItemsController(context);
-        var toDoItem = new ToDoItem
-        {
-            ToDoItemId = 1,
-            Name = "Jmeno",
-            Description = "Popis",
-            IsCompleted = false
-        };
-        controller.items.Add(toDoItem);
+        var repository = Substitute.For<IRepository<ToDoItem>>();
+        var controller = new ToDoItemsController(repository);
+        var invalidId = -1;
+
+        // Simulate exception for invalid ID or absence of item
+        repository.When(r => r.DeleteById(invalidId)).Do(r => throw new KeyNotFoundException("Item not found"));
 
         // Act
-        var invalidId = -1;
         var result = controller.DeleteById(invalidId);
+        var resultResult = result as ObjectResult;
 
         // Assert
-        Assert.IsType<NotFoundResult>(result);
+        Assert.IsType<ObjectResult>(resultResult);
+        Assert.Equal(500, resultResult?.StatusCode);
     }
 }

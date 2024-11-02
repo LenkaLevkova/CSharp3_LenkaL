@@ -21,15 +21,17 @@ public class PostTests
             IsCompleted: false
         );
 
+        var domainItem = request.ToDomain();
+        repository.When(r => r.Create(Arg.Any<ToDoItem>())).Do(r => domainItem.ToDoItemId = 1);
+
         // Act
         var result = controller.Create(request);
-        var resultResult = result.Result;
-        var value = result.GetValue();
+        var resultResult = result.Result as CreatedAtActionResult;
+        var value = resultResult?.Value as ToDoItemGetResponseDto;
 
         // Assert
         Assert.IsType<CreatedAtActionResult>(resultResult);
         Assert.NotNull(value);
-
         Assert.Equal(request.Description, value.Description);
         Assert.Equal(request.IsCompleted, value.IsCompleted);
         Assert.Equal(request.Name, value.Name);
@@ -47,19 +49,15 @@ public class PostTests
             IsCompleted: false
         );
 
-        repository.When(r => r.Create(Arg.Any<ToDoItem>())).Do(r => throw new Exception());
+        // Simulate an exception when the repository's Create method is called
+        repository.When(r => r.Create(Arg.Any<ToDoItem>())).Do(r => throw new Exception("Database error"));
 
         // Act
         var result = controller.Create(request);
-        var resultResult = result.Result;
-        var value = result.GetValue();
+        var resultResult = result.Result as ObjectResult;
 
         // Assert
-        Assert.IsType<CreatedAtActionResult>(resultResult);
-        Assert.NotNull(value);
-
-        Assert.Equal(request.Description, value.Description);
-        Assert.Equal(request.IsCompleted, value.IsCompleted);
-        Assert.Equal(request.Name, value.Name);
+        Assert.IsType<ObjectResult>(resultResult);
+        Assert.Equal(500, resultResult?.StatusCode);
     }
 }
