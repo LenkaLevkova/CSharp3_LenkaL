@@ -46,8 +46,8 @@ public class GetTests
             Description = "Example New Description",
             IsCompleted = false
         };
-        repository.ReadById(9).Returns(toDoItem);
 
+        repository.ReadById(9).Returns(toDoItem);
         var controller = new ToDoItemsController(repository);
 
         // Act

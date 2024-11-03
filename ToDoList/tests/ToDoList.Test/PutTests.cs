@@ -23,9 +23,6 @@ public class PutTests
             IsCompleted: true
         );
 
-        // Simulate successful update
-        //repository.When(r => r.UpdateById(validId, Arg.Any<ToDoItem>())).DoNotCallBase();
-
         // Act
         var result = controller.UpdateById(validId, request);
 
@@ -54,10 +51,11 @@ public class PutTests
         // Act
         var result = controller.UpdateById(invalidId, request);
         var resultResult = result as ObjectResult;
+        var problemDetails = resultResult?.Value as ProblemDetails;
 
         // Assert
         Assert.IsType<ObjectResult>(resultResult);
         Assert.Equal(500, resultResult?.StatusCode);
-        Assert.Contains("Item not found", resultResult?.Value.ToString());
+        Assert.Contains("Item not found", problemDetails?.Detail);
     }
 }

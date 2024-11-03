@@ -38,9 +38,11 @@ public class DeleteTests
         // Act
         var result = controller.DeleteById(invalidId);
         var resultResult = result as ObjectResult;
+        var problemDetails = resultResult?.Value as ProblemDetails;
 
         // Assert
         Assert.IsType<ObjectResult>(resultResult);
         Assert.Equal(500, resultResult?.StatusCode);
+        Assert.Contains("Item not found", problemDetails?.Detail);
     }
 }

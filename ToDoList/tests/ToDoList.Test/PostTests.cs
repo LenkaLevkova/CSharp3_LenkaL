@@ -49,15 +49,16 @@ public class PostTests
             IsCompleted: false
         );
 
-        // Simulate an exception when the repository's Create method is called
-        repository.When(r => r.Create(Arg.Any<ToDoItem>())).Do(r => throw new Exception("Database error"));
+        repository.When(r => r.Create(Arg.Any<ToDoItem>())).Do(r => throw new Exception("Error"));
 
         // Act
         var result = controller.Create(request);
         var resultResult = result.Result as ObjectResult;
+        var problemDetails = resultResult?.Value as ProblemDetails;
 
         // Assert
         Assert.IsType<ObjectResult>(resultResult);
         Assert.Equal(500, resultResult?.StatusCode);
+        Assert.Contains("Error", problemDetails?.Detail);
     }
 }
