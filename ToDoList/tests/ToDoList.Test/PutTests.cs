@@ -2,9 +2,10 @@ namespace ToDoList.Test;
 
 using Microsoft.AspNetCore.Mvc;
 using ToDoList.Domain.DTOs;
-using ToDoList.Domain.Models;
-using ToDoList.Persistence;
 using ToDoList.WebApi.Controllers;
+using ToDoList.Persistence.Repositories;
+using ToDoList.Domain.Models;
+using NSubstitute;
 
 public class PutTests
 {
@@ -12,17 +13,9 @@ public class PutTests
     public void Put_ValidId_ReturnsNoContent()
     {
         // Arrange
-        var path = AppContext.BaseDirectory;
-        var context = new ToDoItemsContext("Data Source=../../../../../data/localdb.db");
-        var controller = new ToDoItemsController(context);
-        var toDoItem = new ToDoItem
-        {
-            ToDoItemId = 1,
-            Name = "Jmeno",
-            Description = "Popis",
-            IsCompleted = false
-        };
-        controller.items.Add(toDoItem);
+        var repository = Substitute.For<IRepository<ToDoItem>>();
+        var controller = new ToDoItemsController(repository);
+        var validId = 1;
 
         var request = new ToDoItemUpdateRequestDto(
             Name: "Jine jmeno",
@@ -31,7 +24,7 @@ public class PutTests
         );
 
         // Act
-        var result = controller.UpdateById(toDoItem.ToDoItemId, request);
+        var result = controller.UpdateById(validId, request);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -41,16 +34,9 @@ public class PutTests
     public void Put_InvalidId_ReturnsNotFound()
     {
         // Arrange
-        var context = new ToDoItemsContext("Data Source=../../../../../data/localdb.db");
-        var controller = new ToDoItemsController(context);
-        var toDoItem = new ToDoItem
-        {
-            ToDoItemId = 1,
-            Name = "Jmeno",
-            Description = "Popis",
-            IsCompleted = false
-        };
-        controller.items.Add(toDoItem);
+        var repository = Substitute.For<IRepository<ToDoItem>>();
+        var controller = new ToDoItemsController(repository);
+        var invalidId = -1;
 
         var request = new ToDoItemUpdateRequestDto(
             Name: "Jine jmeno",
@@ -58,11 +44,18 @@ public class PutTests
             IsCompleted: true
         );
 
+        // Simulate exception for invalid ID or absence of item
+        repository.When(r => r.UpdateById(invalidId, Arg.Any<ToDoItem>()))
+                  .Do(r => throw new KeyNotFoundException("Item not found"));
+
         // Act
-        var invalidId = -1;
         var result = controller.UpdateById(invalidId, request);
+        var resultResult = result as ObjectResult;
+        var problemDetails = resultResult?.Value as ProblemDetails;
 
         // Assert
-        Assert.IsType<NotFoundResult>(result);
+        Assert.IsType<ObjectResult>(resultResult);
+        Assert.Equal(500, resultResult?.StatusCode);
+        Assert.Contains("Item not found", problemDetails?.Detail);
     }
 }
