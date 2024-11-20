@@ -1,29 +1,14 @@
-@rendermode InteractiveServer
-@using System.Collections.Generic
-@using System
-@using System.Linq
+﻿@rendermode InteractiveServer
 
 <h1>Dashboard</h1>
-
 <table>
-    <tr>
-        <td>prvni hodnota</td>
-        <td>druha hodnota</td>
-    </tr>
-    <tr>
-        <td>dalsi hodnota</td>
-        <td>deste hodnota</td>
-    </tr>
-</table>
-
-<table>
-    @foreach(var item in toDoItems)
+    @foreach (var toDoItem in toDoItems)
     {
         <tr>
-            <td>@item.ToDoItemId</td>
-            <td>@item.Name</td>
-            <td>@item.Description</td>
-            <td>@item.IsCompleted</td>
+            <td>@toDoItem.ToDoItemId</td>
+            <td>@toDoItem.Name</td>
+            <td>@toDoItem.IsCompleted</td>
+            <td>@toDoItem.Description</td>
         </tr>
     }
 </table>
