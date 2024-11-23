@@ -21,8 +21,20 @@ public class ToDoItemsRepository : IRepository<ToDoItem>
     public ToDoItem? ReadById(int id) => context.ToDoItems.Find(id);
     public void Update(ToDoItem item)
     {
-        context.Entry(item).CurrentValues.SetValues(item);
-        context.SaveChanges();
+        //This did not work for me, so I am replacing it with more stupid, but functional solution
+        //context.Entry(item).CurrentValues.SetValues(item);
+        //context.SaveChanges();
+
+        var itemToUpdate = context.ToDoItems.Find(item.ToDoItemId);
+
+        if (itemToUpdate != null)
+        {
+            itemToUpdate.Name = item.Name;
+            itemToUpdate.Description = item.Description;
+            itemToUpdate.IsCompleted = item.IsCompleted;
+            itemToUpdate.Category = item.Category;
+            context.SaveChanges();
+        }
     }
 
     public void Delete(ToDoItem item)

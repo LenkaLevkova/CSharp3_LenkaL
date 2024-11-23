@@ -104,7 +104,7 @@ public class ToDoItemsClient(HttpClient httpClient) : IToDoItemsClient //primary
     {
         try
         {
-            var itemRequest = new ToDoItemUpdateRequestDto(itemView.Name, itemView.Description, itemView.IsCompleted);
+            var itemRequest = new ToDoItemUpdateRequestDto(itemView.Name, itemView.Description, itemView.IsCompleted, itemView.Category);
             var response = await httpClient.PutAsJsonAsync($"api/ToDoItems/{itemView.ToDoItemId}", itemRequest);
             if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
             {
