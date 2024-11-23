@@ -6,20 +6,22 @@ using ToDoList.Domain.Models;
 using ToDoList.Persistence.Repositories;
 using NSubstitute;
 using ToDoList.Domain.DTOs;
+using NSubstitute.ExceptionExtensions;
+using NSubstitute.ReturnsExtensions;
 
 public class GetUnitTestsHomework
 {
-    private readonly IRepository<ToDoItem> repositoryMock;
     private readonly ToDoItemsController controller;
+    private readonly IRepositoryAsync<ToDoItem> repositoryMock;
 
     public GetUnitTestsHomework()
     {
-        repositoryMock = Substitute.For<IRepository<ToDoItem>>();
+        repositoryMock = Substitute.For<IRepositoryAsync<ToDoItem>>();
         controller = new ToDoItemsController(repositoryMock);
     }
 
     [Fact]
-    public void Get_ReadWhenSomeItemAvailable_ReturnsOk()
+    public async Task Get_ReadWhenSomeItemAvailable_ReturnsOk()
     {
         // Arrange
         var items = new List<ToDoItem>
@@ -28,10 +30,10 @@ public class GetUnitTestsHomework
             new ToDoItem { ToDoItemId = 2, Name = "Test Item 2" }
         };
 
-        repositoryMock.ReadAll().Returns(items);
+        repositoryMock.ReadAllAsync().Returns(items);
 
         // Act
-        var result = controller.Read();
+        var result = await controller.ReadAsync();
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -41,26 +43,26 @@ public class GetUnitTestsHomework
     }
 
     [Fact]
-    public void Get_ReadWhenNoItemAvailable_ReturnsNotFound()
+    public async Task Get_ReadWhenNoItemAvailable_ReturnsNotFound()
     {
         // Arrange
-        repositoryMock.ReadAll().Returns(Enumerable.Empty<ToDoItem>());
+        repositoryMock.ReadAllAsync().Returns(Enumerable.Empty<ToDoItem>());
 
         // Act
-        var result = controller.Read();
+        var result = await controller.ReadAsync();
 
         // Assert
         Assert.IsType<NotFoundResult>(result.Result);
     }
 
     [Fact]
-    public void Get_ReadUnhandledException_ReturnsInternalServerError()
+    public async Task Get_ReadUnhandledException_ReturnsInternalServerError()
     {
         // Arrange
-        repositoryMock.ReadAll().Returns(_ => throw new Exception("Unexpected error"));
+        repositoryMock.ReadAllAsync().Throws(new Exception("Unexpected error"));
 
         // Act
-        var result = controller.Read();
+        var result = await controller.ReadAsync();
         var resultResult = result.Result as ObjectResult;
         var problemDetails = resultResult?.Value as ProblemDetails;
 
@@ -71,15 +73,15 @@ public class GetUnitTestsHomework
     }
 
     [Fact]
-    public void Get_ReadByIdWhenSomeItemAvailable_ReturnsOk()
+    public async Task Get_ReadByIdWhenSomeItemAvailable_ReturnsOk()
     {
         // Arrange
         var toDoItemId = 1;
         var item = new ToDoItem { ToDoItemId = toDoItemId, Name = "Test Item" };
-        repositoryMock.ReadById(toDoItemId).Returns(item);
+        repositoryMock.ReadByIdAsync(toDoItemId).Returns(item);
 
         // Act
-        var result = controller.ReadById(toDoItemId);
+        var result = await controller.ReadByIdAsync(toDoItemId);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -89,28 +91,28 @@ public class GetUnitTestsHomework
     }
 
     [Fact]
-    public void Get_ReadByIdWhenItemIsNull_ReturnsNotFound()
+    public async Task Get_ReadByIdWhenItemIsNull_ReturnsNotFound()
     {
         // Arrange
         var toDoItemId = 1;
-        repositoryMock.ReadById(toDoItemId).Returns((ToDoItem)null);
+        repositoryMock.ReadByIdAsync(toDoItemId).Returns((ToDoItem)null);
 
         // Act
-        var result = controller.ReadById(toDoItemId);
+        var result = await controller.ReadByIdAsync(toDoItemId);
 
         // Assert
         Assert.IsType<NotFoundResult>(result.Result);
     }
 
     [Fact]
-    public void Get_ReadByIdUnhandledException_ReturnsInternalServerError()
+    public async Task Get_ReadByIdUnhandledException_ReturnsInternalServerError()
     {
         // Arrange
         var toDoItemId = 1;
-        repositoryMock.ReadById(toDoItemId).Returns(_ => throw new Exception("Unexpected error"));
+        repositoryMock.ReadByIdAsync(toDoItemId).Throws(new Exception("Unexpected error"));
 
         // Act
-        var result = controller.ReadById(toDoItemId);
+        var result = await controller.ReadByIdAsync(toDoItemId);
         var resultResult = result.Result as ObjectResult;
         var problemDetails = resultResult?.Value as ProblemDetails;
 

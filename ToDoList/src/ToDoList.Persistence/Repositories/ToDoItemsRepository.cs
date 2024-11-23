@@ -3,7 +3,7 @@ namespace ToDoList.Persistence.Repositories;
 using System.Collections.Generic;
 using ToDoList.Domain.Models;
 
-public class ToDoItemsRepository : IRepository<ToDoItem>
+public class ToDoItemsRepository : IRepositoryAsync<ToDoItem>
 {
     private readonly ToDoItemsContext context;
 
@@ -12,20 +12,22 @@ public class ToDoItemsRepository : IRepository<ToDoItem>
         this.context = context;
     }
 
-    public void Create(ToDoItem item)
+    public async Task CreateAsync(ToDoItem item)
     {
-        context.ToDoItems.Add(item);
-        context.SaveChanges();
+        await context.ToDoItems.AddAsync(item);
+        await context.SaveChangesAsync();
     }
-    public IEnumerable<ToDoItem> ReadAll() => context.ToDoItems.ToList();
-    public ToDoItem? ReadById(int id) => context.ToDoItems.Find(id);
-    public void Update(ToDoItem item)
+
+    //how can I await .ToList() ??
+    public async Task<IEnumerable<ToDoItem>> ReadAllAsync() => context.ToDoItems.ToList();
+    public async Task<ToDoItem?> ReadByIdAsync(int id) => await context.ToDoItems.FindAsync(id);
+    public async Task UpdateAsync(ToDoItem item)
     {
         //This did not work for me, so I am replacing it with more stupid, but functional solution
         //context.Entry(item).CurrentValues.SetValues(item);
         //context.SaveChanges();
 
-        var itemToUpdate = context.ToDoItems.Find(item.ToDoItemId);
+        var itemToUpdate = await context.ToDoItems.FindAsync(item.ToDoItemId);
 
         if (itemToUpdate != null)
         {
@@ -33,13 +35,13 @@ public class ToDoItemsRepository : IRepository<ToDoItem>
             itemToUpdate.Description = item.Description;
             itemToUpdate.IsCompleted = item.IsCompleted;
             itemToUpdate.Category = item.Category;
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
     }
 
-    public void Delete(ToDoItem item)
+    public async Task DeleteAsync(ToDoItem item)
     {
         context.ToDoItems.Remove(item);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 }
