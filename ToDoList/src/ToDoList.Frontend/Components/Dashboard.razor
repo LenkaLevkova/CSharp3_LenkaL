@@ -1,15 +1,21 @@
-﻿@rendermode InteractiveServer
+﻿@using ToDoList.Frontend.Views
+@using ToDoList.Frontend.Clients
+@inject IToDoItemsClient ToDoItemsClient
+@rendermode InteractiveServer
 
 <h1>Dashboard</h1>
 <table>
-    @foreach (var toDoItem in toDoItems)
+    @if(toDoItems is not null)
     {
-        <tr>
-            <td>@toDoItem.ToDoItemId</td>
-            <td>@toDoItem.Name</td>
-            <td>@toDoItem.IsCompleted</td>
-            <td>@toDoItem.Description</td>
-        </tr>
+        @foreach (var toDoItem in toDoItems)
+        {
+            <tr>
+                <td>@toDoItem.ToDoItemId</td>
+                <td>@toDoItem.Name</td>
+                <td>@toDoItem.IsCompleted</td>
+                <td>@toDoItem.Description</td>
+            </tr>
+        }
     }
 </table>
 
@@ -22,36 +28,29 @@
 {
     public void SortByName()
     {
-        toDoItems.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase));
+        toDoItems?.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase));
     }
 
     public void SortByDescription()
     {
-        toDoItems.Sort((x, y) => string.Compare(x.Description, y.Description, StringComparison.OrdinalIgnoreCase));
+        toDoItems?.Sort((x, y) => string.Compare(x.Description, y.Description, StringComparison.OrdinalIgnoreCase));
     }
 
     public void SortById()
     {
-        toDoItems.Sort((x, y) => x.ToDoItemId.CompareTo(y.ToDoItemId));
+        toDoItems?.Sort((x, y) => x.ToDoItemId.CompareTo(y.ToDoItemId));
     }
 
     public void SortByIsCompleted()
     {
-        toDoItems.Sort((x, y) => x.IsCompleted.CompareTo(y.IsCompleted));
+        toDoItems?.Sort((x, y) => x.IsCompleted.CompareTo(y.IsCompleted));
     }
 
-    private List<ToDoItemView> toDoItems =
-        [
-            new ToDoItemView() {ToDoItemId = 5, Name = "ccccfh", Description = "ffg", IsCompleted = false},
-            new ToDoItemView() {ToDoItemId = 1, Name = "Udelat ukol na Czechitas", Description = "jhsdfk", IsCompleted = true},
-            new ToDoItemView() {ToDoItemId = 2, Name = "Udelat nepovinny ukol na Czechitas", Description = "kn,mn", IsCompleted = false}
-        ];
-
-    public class ToDoItemView
+    protected override async Task OnInitializedAsync()
     {
-        public int ToDoItemId {get; set;}
-        public string Name {get; set;}
-        public string Description {get; set;}
-        public bool IsCompleted {get; set;}
+        toDoItems = await ToDoItemsClient.ReadItemsAsync();
     }
+
+    private List<ToDoItemView>? toDoItems = [];
+
 }
