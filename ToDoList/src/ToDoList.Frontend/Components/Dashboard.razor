@@ -6,12 +6,12 @@
 <h1>Dashboard</h1>
 
 <table>
-    <tr>
+    @* <tr>
         <td><button @onclick="OrderById">Seradit Podle Id</button></td>
         <td><button @onclick="OrderByName">Seradit Podle Jmena</button></td>
         <td></td>
         <td></td>
-    </tr>
+    </tr> *@
 
     @if (toDoItems is null)
     {
@@ -46,7 +46,7 @@
 
     private List<ToDoItemView>? toDoItems;
 
-    public void OrderByName()
+    public void SortByName()
     {
         toDoItems = toDoItems?.OrderBy(item => item.Name).ToList();
     }
@@ -69,12 +69,4 @@
     {
         toDoItems?.Sort((x, y) => x.IsCompleted.CompareTo(y.IsCompleted));
     }
-
-    protected override async Task OnInitializedAsync()
-    {
-        toDoItems = await ToDoItemsClient.ReadItemsAsync();
-    }
-
-    private List<ToDoItemView>? toDoItems = [];
-
 }
