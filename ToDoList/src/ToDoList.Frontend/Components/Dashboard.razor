@@ -11,6 +11,7 @@
         <th>Id</th>
         <th>Name</th>
         <th>Description</th>
+        <th>Category</th>
         <th>Completed</th>
         <th>Actions</th>
     </thead>
@@ -28,20 +29,32 @@
                     <td>@toDoItem.ToDoItemId</td>
                     <td>@toDoItem.Name</td>
                     <td>@toDoItem.Description</td>
+                    <td>@toDoItem.Category</td>
                     <td>@toDoItem.IsCompleted</td>
-                    <td><button class="btn btn-success" @onclick="() => EditItem(toDoItem)">Edit</button></td>
+
+                    <button class="btn btn-success me-2" @onclick="() => EditItem(toDoItem)">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+
+                    <button class="btn btn-danger me-2" @onclick="() => DeleteItem(toDoItem)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+
+                    <button class="btn btn-warning" @onclick="() => ToggleCompletion(toDoItem)">
+                        <i class="@(toDoItem.IsCompleted ? "bi bi-check-circle-fill" : "bi bi-circle")"></i>
+                    </button>
                 </tr>
             }
         }
     </tbody>
 </table>
-<button class="btn btn-success" @onclick="OrderById">Seradit Podle Id</button>
-<button class="btn btn-success" @onclick="OrderByName">Seradit Podle Jmena</button>
+@* <button class="btn btn-success" @onclick="OrderById">Seradit Podle Id</button>
+<button class="btn btn-success" @onclick="OrderByName">Seradit Podle Jmena</button> *@
 
-<button @onclick=SortByName>Sort By Name</button>
-<button @onclick=SortByDescription>Sort By Description</button>
-<button @onclick=SortById>Sort By Id</button>
-<button @onclick=SortByIsCompleted>Sort By Completeness</button>
+<button class="btn btn-success" @onclick=SortByName>Sort By Name</button>
+<button class="btn btn-success" @onclick=SortByDescription>Sort By Description</button>
+<button class="btn btn-success" @onclick=SortById>Sort By Id</button>
+<button class="btn btn-success" @onclick=SortByIsCompleted>Sort By Completeness</button>
 
 @code
 {
@@ -56,13 +69,58 @@
     {
         toDoItems = toDoItems?.OrderBy(item => item.Name).ToList();
     }
+
+    public void OrderByName()
+    {
+        toDoItems = toDoItems?.OrderBy(item => item.Name).ToList();
+    }
+
     public void OrderById()
     {
         toDoItems = toDoItems?.OrderBy(item => item.ToDoItemId).ToList();
     }
 
+    public void SortByCategory()
+    {
+        toDoItems = toDoItems?.OrderBy(item => item.Category).ToList();
+    }
+
+    public void SortByDescription()
+    {
+        toDoItems?.Sort((x, y) => string.Compare(x.Description, y.Description, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public void SortById()
+    {
+        toDoItems?.Sort((x, y) => x.ToDoItemId.CompareTo(y.ToDoItemId));
+    }
+
+    public void SortByIsCompleted()
+    {
+        toDoItems?.Sort((x, y) => x.IsCompleted.CompareTo(y.IsCompleted));
+    }
+
     public void EditItem(ToDoItemView toDoItem)
     {
         NavigationManager.NavigateTo($"editToDoItem/{toDoItem.ToDoItemId}");
+    }
+
+    public async Task DeleteItem(ToDoItemView toDoItem)
+    {
+        await ToDoItemsClient.DeleteItemAsync(toDoItem);
+        await RefreshToDoItems();
+    }
+
+    public async Task ToggleCompletion(ToDoItemView toDoItem)
+    {
+        toDoItem.IsCompleted = !toDoItem.IsCompleted;
+        await ToDoItemsClient.UpdateItemAsync(toDoItem);
+        await RefreshToDoItems();
+    }
+
+    private async Task RefreshToDoItems()
+    {
+        toDoItems = await ToDoItemsClient.ReadItemsAsync();
+        StateHasChanged();
     }
 }
