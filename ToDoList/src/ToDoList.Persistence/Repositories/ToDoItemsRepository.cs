@@ -14,8 +14,16 @@ public class ToDoItemsRepository : IRepositoryAsync<ToDoItem>
 
     public async Task CreateAsync(ToDoItem item)
     {
-        await context.ToDoItems.AddAsync(item);
-        await context.SaveChangesAsync();
+        context.ToDoItems.Add(item);
+        context.SaveChanges();
+    }
+    public IEnumerable<ToDoItem> ReadAll() => context.ToDoItems.ToList();
+    public ToDoItem? ReadById(int id) => context.ToDoItems.Find(id);
+    public void Update(ToDoItem item)
+    {
+        var foundItem = context.ToDoItems.Find(item.ToDoItemId) ?? throw new Exception($"Item with ID {item.ToDoItemId} not found.");
+        context.Entry(foundItem).CurrentValues.SetValues(item);
+        context.SaveChanges();
     }
 
     //how can I await .ToList() ??

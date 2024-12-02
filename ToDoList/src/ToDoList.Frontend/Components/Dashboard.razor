@@ -1,36 +1,42 @@
 ﻿@using ToDoList.Frontend.Views
 @using ToDoList.Frontend.Clients
 @inject IToDoItemsClient ToDoItemsClient
+@inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
 <h1>Dashboard</h1>
 
-<table>
-    @* <tr>
-        <td><button @onclick="OrderById">Seradit Podle Id</button></td>
-        <td><button @onclick="OrderByName">Seradit Podle Jmena</button></td>
-        <td></td>
-        <td></td>
-    </tr> *@
-
-    @if (toDoItems is null)
-    {
-        <p>Nacitam...</p>
-    }
-
-    @if (toDoItems is not null)
-    {
-        @foreach (var toDoItem in toDoItems)
+<table class="table table-hover mt-5">
+    <thead class="table-dark">
+        <th>Id</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Completed</th>
+        <th>Actions</th>
+    </thead>
+    <tbody>
+        @if (toDoItems is null)
         {
-            <tr>
-                <td>@toDoItem.ToDoItemId</td>
-                <td>@toDoItem.Name</td>
-                <td>@toDoItem.Description</td>
-                <td>@toDoItem.IsCompleted</td>
-            </tr>
+            <p>Nacitam...</p>
         }
-    }
+
+        @if (toDoItems is not null)
+        {
+            @foreach (var toDoItem in toDoItems)
+            {
+                <tr class="table-success">
+                    <td>@toDoItem.ToDoItemId</td>
+                    <td>@toDoItem.Name</td>
+                    <td>@toDoItem.Description</td>
+                    <td>@toDoItem.IsCompleted</td>
+                    <td><button class="btn btn-success" @onclick="() => EditItem(toDoItem)">Edit</button></td>
+                </tr>
+            }
+        }
+    </tbody>
 </table>
+<button class="btn btn-success" @onclick="OrderById">Seradit Podle Id</button>
+<button class="btn btn-success" @onclick="OrderByName">Seradit Podle Jmena</button>
 
 <button @onclick=SortByName>Sort By Name</button>
 <button @onclick=SortByDescription>Sort By Description</button>
@@ -55,18 +61,8 @@
         toDoItems = toDoItems?.OrderBy(item => item.ToDoItemId).ToList();
     }
 
-    public void SortByDescription()
+    public void EditItem(ToDoItemView toDoItem)
     {
-        toDoItems?.Sort((x, y) => string.Compare(x.Description, y.Description, StringComparison.OrdinalIgnoreCase));
-    }
-
-    public void SortById()
-    {
-        toDoItems?.Sort((x, y) => x.ToDoItemId.CompareTo(y.ToDoItemId));
-    }
-
-    public void SortByIsCompleted()
-    {
-        toDoItems?.Sort((x, y) => x.IsCompleted.CompareTo(y.IsCompleted));
+        NavigationManager.NavigateTo($"editToDoItem/{toDoItem.ToDoItemId}");
     }
 }
